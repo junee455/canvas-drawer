@@ -10,6 +10,15 @@ import {
 
 import * as Helpers from "./helpers";
 
+type ShortcutDescription = {
+  key: string;
+  ctrl?: boolean;
+  shift?: boolean;
+  alt?: boolean;
+};
+
+type ShortcutMap = [ShortcutDescription, () => void][];
+
 type AppContext = {
   canvasDrawer: CanvasDrawer;
   canvas: HTMLCanvasElement;
@@ -45,15 +54,43 @@ export function initApp(
 
   const erazerTool = new ErazerTool(canvasDrawer);
 
-  function onPointerUp(ev: PointerEvent) {}
+  function onPointerUp(ev: PointerEvent) {
+    if (!appContext.currentTool) {
+      return;
+    }
 
-  function onPointerDown(ev: PointerEvent) {}
+    const tool = appContext.currentTool;
+
+    if (!tool) {
+      return;
+    }
+
+    tool.onMouseUp(ev);
+  }
+
+  function onPointerDown(ev: PointerEvent) {
+    const tool = appContext.currentTool;
+
+    if (!tool) {
+      return;
+    }
+
+    tool.onMouseDown(ev);
+  }
 
   function onPointerMove(ev: PointerEvent) {
     if (customCursorEl) {
       const newPosition: Point2 = [ev.clientX, ev.clientY];
       Helpers.updateCursorPositioin(customCursorEl, newPosition);
     }
+
+    const tool = appContext.currentTool;
+
+    if (!tool) {
+      return;
+    }
+
+    tool.onMouseMove(ev);
   }
 
   function onKeyUp(ev: KeyboardEvent) {}
@@ -66,6 +103,8 @@ export function initApp(
     cursorPosition: [0, 0],
     tools: [lineTool, pointTool, erazerTool],
     destroy: onDestroy,
+
+    currentTool: lineTool,
 
     pickCurrentTool,
   };
@@ -222,13 +261,6 @@ function init_old() {
 
     console.log(ev.code, ev.ctrlKey, ev.shiftKey, ev.altKey);
 
-    type ShortcutDescription = {
-      key: string;
-      ctrl?: boolean;
-      shift?: boolean;
-      alt?: boolean;
-    };
-
     const permittedShortcuts: ShortcutDescription[] = [
       {
         key: "F12",
@@ -262,8 +294,6 @@ function init_old() {
     }
 
     // process known shortcuts
-
-    type ShortcutMap = [ShortcutDescription, () => void][];
 
     const knownShortcuts: ShortcutMap = [
       [
