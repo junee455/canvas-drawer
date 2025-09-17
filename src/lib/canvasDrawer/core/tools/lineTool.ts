@@ -1,8 +1,8 @@
 import { BasicTool, Tool } from "./basicTool";
 
 import { GLine } from "../graphicPrimitives";
-import { Point2, vec2Minus, vecLen } from "../primitives";
 import { CanvasDrawer } from "../canvasDrawer";
+import { Point2, vec2Sub, vecLen } from "@/lib/math";
 
 export type LineToolSettings = {
   color: string;
@@ -26,6 +26,16 @@ export class LineTool extends BasicTool implements Tool {
 
   constructor(protected canvas: CanvasDrawer) {
     super(canvas);
+  }
+
+  public addThickness(dt: number) {
+    if ((this.thickness == 1 && dt < 0) || this.thickness < 1) {
+      dt /= 10;
+
+      this.thickness = Math.max(this.thickness + dt, 0.1);
+    } else {
+      this.thickness = (this.thickness + dt) | 0;
+    }
   }
 
   public override onMouseMove(ev: MouseEvent) {
@@ -103,19 +113,18 @@ export class LineTool extends BasicTool implements Tool {
 
     const { geometry } = this.currentLine;
 
-    // if (geometry.length === 2) {
-    //   const diff = vec2Minus(geometry[0], geometry[1]);
-    //   if (vecLen(diff) < 4) {
-    //     const avg = [
-    //       geometry[0][0] + diff[0] / 2,
-    //       geometry[0][1] + diff[1] / 2,
-    //     ] as Point2;
-    //     this.currentLine.geometry = [
-    //       [avg[0], avg[1] + 1],
-    //       [avg[0], avg[1] - 1],
-    //     ];
-    //   }
-    // }
+    if (geometry.length === 1 && geometry[0].length === 2) {
+      const g = geometry[0];
+
+      const diff = vec2Sub(g[0], g[1]);
+      if (vecLen(diff) < this.thickness) {
+        const avg = [g[0][0] + diff[0] / 2, g[0][1] + diff[1] / 2] as Point2;
+        this.currentLine.geometry[0] = [
+          [avg[0], avg[1] + this.thickness / 2],
+          [avg[0], avg[1] - this.thickness / 2],
+        ];
+      }
+    }
 
     this.currentLine = undefined;
 

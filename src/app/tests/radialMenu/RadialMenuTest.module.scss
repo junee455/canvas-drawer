@@ -1,0 +1,25 @@
+.RadialMenuTest-page {
+  position: relative;
+  display: block;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 16px;
+  padding: 16px;
+
+  width: 100%;
+  height: 100%;
+
+  .flex {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .RadialMenu {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+}

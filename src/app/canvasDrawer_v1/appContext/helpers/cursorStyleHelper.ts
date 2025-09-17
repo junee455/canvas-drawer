@@ -1,4 +1,4 @@
-import { Point2 } from "@/lib/canvasDrawer/core/primitives";
+import { Point2 } from "@/lib/math";
 
 export function updateCursorPositioin(cursorEl: HTMLElement, position: Point2) {
   cursorEl.style.top = `${position[1]}px`;

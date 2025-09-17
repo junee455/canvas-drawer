@@ -5,7 +5,12 @@
 
   height: 100dvh;
 
-  * {
+  &:active,
+  &:focus {
+    outline: none;
+  }
+
+  canvas {
     cursor: none;
   }
 
@@ -53,15 +58,25 @@
     flex-direction: column;
     gap: 8px;
 
-    &.semiHidden {
-      left: 24px;
-      transform: translateX(-100%);
+  }
 
-      button {
-        text-align: right;
-        // padding-left: 100px;
-        padding-right: 8px;
-      }
+  .tools.semiHidden {
+    left: 24px;
+    transform: translateX(-100%);
+
+    button {
+      text-align: right;
+      padding-right: 8px;
+    }
+  }
+
+  .toolSettings.semiHidden {
+    right: 24px;
+    transform: translateX(100%);
+
+    button {
+      text-align: left;
+      padding-left: 8px;
     }
   }
 
@@ -156,6 +171,22 @@
       &.bottom {
         transform: translateY(-50%) rotate(-90deg) translateX(calc(var(--brushSize) + 4px));
         // transform: rotate(-90deg) translateX(var(--brushSize));
+      }
+    }
+  }
+
+  .ToolListModal {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 2px;
+    border-radius: 4px;
+    background-color: #333;
+
+    button {
+      &:hover {
+        background-color: white;
+        color: grey;
       }
     }
   }

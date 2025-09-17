@@ -1,6 +1,6 @@
 import { CanvasDrawer } from "../canvasDrawer";
 import { GLine } from "../graphicPrimitives";
-import { Line, Point2 } from "../primitives";
+import { Line } from "../primitives";
 import { BasicTool, Tool } from "./basicTool";
 
 export class ErazerTool extends BasicTool implements Tool {

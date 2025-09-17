@@ -1,4 +1,5 @@
-import { Line, Point2 } from "./primitives";
+import { Point2 } from "@/lib/math";
+import { Line } from "./primitives";
 
 export type TGraphicPrimitive<
   Name extends KnownPrimitiveNames,

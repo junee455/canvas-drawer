@@ -1,5 +1,9 @@
+import { Point2 } from "@/lib/math";
 import { GLine, GPoint, KnownPrimitives } from "./graphicPrimitives";
-import { Point2 } from "./primitives";
+import {
+  CanvasDragScale,
+  dragCanvas,
+} from "@/app/canvasDrawer_v1/appContext/inputHandlers.ts";
 
 export interface Primitive {
   render: (ctx: CanvasRenderingContext2D) => void;
@@ -17,10 +21,9 @@ export class CanvasDrawer {
 
   private mousePos: [number, number] = [0, 0];
 
-  private mouseMoveScalingInProgress = false;
-  private mouseMoveScalingPivot?: [number, number];
-
   private lastPrimitivePriority = 0;
+
+  public canvasDragScaleHelper = new CanvasDragScale(this);
 
   constructor(private canvas: HTMLCanvasElement) {
     console.log("new canvas drawer");
@@ -46,59 +49,6 @@ export class CanvasDrawer {
 
     canvas.setAttribute("height", window.innerHeight.toString());
     canvas.setAttribute("width", window.innerWidth.toString());
-
-    canvas.addEventListener("wheel", (ev) => {
-      if (ev.ctrlKey) {
-        ev.preventDefault();
-        ev.stopImmediatePropagation();
-
-        console.log(ev.deltaY);
-
-        this.updateScaleAtPoint([ev.clientX, ev.clientY], -ev.deltaY);
-      }
-    });
-
-    canvas.addEventListener("mousemove", (ev) => {
-      // console.log(ev.buttons ^ 4);
-      const middlePressed = !(ev.buttons ^ 2);
-
-      if (ev.ctrlKey && middlePressed) {
-        // initiate
-        if (!this.mouseMoveScalingInProgress) {
-          this.mouseMoveScalingInProgress = true;
-          this.mouseMoveScalingPivot = [ev.clientX, ev.clientY];
-        } else {
-          // if initiated:
-          let zoomScale = 100;
-
-          if (ev.shiftKey) {
-            zoomScale = 10;
-          }
-
-          this.updateScaleAtPoint(
-            this.mouseMoveScalingPivot!,
-            ev.movementY * zoomScale
-          );
-        }
-      } else {
-        if (this.mouseMoveScalingInProgress) {
-          this.mouseMoveScalingInProgress = false;
-          this.mouseMoveScalingPivot = undefined;
-        }
-      }
-
-      // console.log(ev.ctrlKey);
-
-      if (!ev.ctrlKey && middlePressed) {
-        // console.log(ev);
-        this.pivotPoint = [
-          this.pivotPoint[0] + ev.movementX,
-          this.pivotPoint[1] + ev.movementY,
-        ];
-
-        this.redraw();
-      }
-    });
   }
 
   public screenCoordsToCanvasCoords(x: number, y: number): Point2 {
@@ -118,7 +68,43 @@ export class CanvasDrawer {
   }
 
   public removeLast() {
-    this.lastPrimitivePriority--;
+    if (this.primitives.length === 0) {
+      return;
+    }
+
+    const removeLastPrimitive = () => {
+      this.primitives = this.primitives.slice(0, -1);
+
+      this.resortPrimitives();
+
+      if (this.primitivesSorted.length) {
+        this.lastPrimitivePriority =
+          this.primitivesSorted.slice(-1)[0].priority;
+      } else {
+        this.lastPrimitivePriority = 0;
+      }
+    };
+
+    const lastPrimitive = this.primitives.slice(-1)[0];
+
+    if (lastPrimitive.name === "Point") {
+      removeLastPrimitive();
+    } else if (lastPrimitive.name === "Line") {
+      const lastSegmentIndex = lastPrimitive.geometry.length - 1;
+
+      lastPrimitive.geometry[lastSegmentIndex] = lastPrimitive.geometry[
+        lastSegmentIndex
+      ].slice(0, -10);
+      lastPrimitive.geometry = lastPrimitive.geometry.filter((s) => !!s.length);
+
+      if (!lastPrimitive.geometry.length) {
+        removeLastPrimitive();
+      }
+    }
+
+    this.redraw();
+
+    // this.lastPrimitivePriority--;
     // find primitive with that priority:
 
     // let lastPoint = this.points.length
