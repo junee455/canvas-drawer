@@ -1,0 +1,45 @@
+.Main-page {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  gap: 8px;
+}
+
+.canvasesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  gap: 16px;
+
+  &>div {
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column;
+
+    height: 300px;
+
+    border: 1px solid white;
+    border-radius: 16px;
+
+    .pictrue {
+      content: "";
+      flex-grow: 1;
+    }
+
+    .cardBottom {
+      padding: 8px;
+      background-color: grey;
+    }
+
+    &.plus {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-around;
+      font-size: 100px;
+
+      cursor: pointer;
+      user-select: none;
+    }
+  }
+}
